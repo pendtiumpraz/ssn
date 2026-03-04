@@ -70,6 +70,59 @@ model Media {
   createdAt  DateTime @default(now())
 }
 
+// ===== CMS Models =====
+
+model TeamMember {
+  id        String   @id @default(cuid())
+  name      String
+  role      String
+  image     String
+  linkedin  String   @default("#")
+  facebook  String   @default("#")
+  twitter   String   @default("#")
+  order     Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model PortfolioItem {
+  id        String   @id @default(cuid())
+  title     String
+  image     String
+  category  String   @default("General")
+  client    String?
+  url       String?
+  order     Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Service {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  image       String
+  color       String   @default("#2b78ff")
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Testimonial {
+  id        String   @id @default(cuid())
+  text      String
+  name      String
+  role      String
+  image     String?
+  order     Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model PageContent {
   id        String   @id @default(cuid())
   pageSlug  String   @unique
