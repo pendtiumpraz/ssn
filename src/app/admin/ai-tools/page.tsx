@@ -90,10 +90,20 @@ export default function AIToolsPage() {
         setTopics([])
         setSelectedTopics(new Set())
         try {
+            // Fetch existing article titles to avoid duplicates
+            let existingTitles: string[] = []
+            try {
+                const articlesRes = await fetch('/api/admin/articles')
+                if (articlesRes.ok) {
+                    const articles = await articlesRes.json()
+                    existingTitles = (articles.articles || articles).map((a: any) => a.title)
+                }
+            } catch { }
+
             const res = await fetch('/api/admin/topic-generator', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ niche: topicNiche, count: topicCount }),
+                body: JSON.stringify({ niche: topicNiche, count: topicCount, existingTitles }),
             })
             if (res.ok) {
                 const data = await res.json()

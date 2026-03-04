@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
 
 export const maxDuration = 10
 
@@ -12,18 +11,10 @@ export async function POST(request: Request) {
 
     try {
         const body = await request.json()
-        const { niche = 'apps dan AI', count = 10 } = body
-
-        // Fetch existing article titles to avoid duplicates
-        const existingArticles = await prisma.article.findMany({
-            select: { title: true },
-            orderBy: { createdAt: 'desc' },
-            take: 50,
-        })
-        const existingTitles = existingArticles.map(a => a.title)
+        const { niche = 'apps dan AI', count = 10, existingTitles = [] } = body
 
         const existingList = existingTitles.length > 0
-            ? `\n\nARTIKEL YANG SUDAH ADA (JANGAN buat topik serupa/mirip):\n${existingTitles.map((t, i) => `${i + 1}. ${t}`).join('\n')}`
+            ? `\n\nARTIKEL YANG SUDAH ADA (JANGAN buat topik serupa/mirip):\n${existingTitles.map((t: string, i: number) => `${i + 1}. ${t}`).join('\n')}`
             : ''
 
         const prompt = `Generate ${count} ide topik artikel blog untuk Sainskerta Nusantara (software house) seputar "${niche}".
