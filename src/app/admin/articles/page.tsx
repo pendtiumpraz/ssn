@@ -14,7 +14,7 @@ export default function ArticlesPage() {
     const fetchArticles = async () => {
         setLoading(true)
         try {
-            const params = new URLSearchParams({ page: String(page), limit: '15' })
+            const params = new URLSearchParams({ page: String(page), limit: '10' })
             if (search) params.set('search', search)
             if (statusFilter) params.set('status', statusFilter)
             const res = await fetch(`/api/admin/articles?${params}`)
