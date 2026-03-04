@@ -1,10 +1,13 @@
-import { auth } from "@/lib/auth"
 import { NextResponse } from "next/server"
+import type { NextRequest } from "next/server"
+import { getToken } from "next-auth/jwt"
 
-export default auth((req) => {
+export async function middleware(req: NextRequest) {
     const { pathname } = req.nextUrl
-    const isLoggedIn = !!req.auth
-    const isAdmin = (req.auth?.user as any)?.role === "ADMIN"
+    const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
+
+    const isLoggedIn = !!token
+    const isAdmin = token?.role === "ADMIN"
 
     // Protect admin routes
     if (pathname.startsWith("/admin")) {
@@ -25,7 +28,7 @@ export default auth((req) => {
     }
 
     return NextResponse.next()
-})
+}
 
 export const config = {
     matcher: ["/admin/:path*", "/login"],
