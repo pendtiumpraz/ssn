@@ -92,3 +92,16 @@
   font-weight: 600;
   color: #333;
 }
+
+/* Responsive blog grid */
+@media (max-width: 991px) {
+  .our-blog .container>div[style] {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+@media (max-width: 576px) {
+  .our-blog .container>div[style] {
+    grid-template-columns: 1fr !important;
+  }
+}

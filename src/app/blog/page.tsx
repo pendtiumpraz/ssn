@@ -64,11 +64,10 @@ export default async function BlogPage() {
                     )}
 
                     {/* Blog Grid */}
-                    <div className="masnory-blog-wrapper">
-                        <div className="grid-sizer"></div>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '30px' }}>
                         {dbArticles.length > 0 ? (
                             dbArticles.map((article, index) => (
-                                <div className={`isotop-item ${article.category?.slug || ''}`} key={article.id}>
+                                <div key={article.id}>
                                     <div className="blog-post-block-two mb-75 md-mb-50">
                                         <div className="img-holder">
                                             <img src={article.coverImage || blogImages[index % blogImages.length]} alt={article.title} />
@@ -88,7 +87,7 @@ export default async function BlogPage() {
                         ) : (
                             /* Static fallback posts */
                             blogImages.slice(0, 6).map((img, index) => (
-                                <div className="isotop-item" key={index}>
+                                <div key={index}>
                                     <div className="blog-post-block-two mb-75 md-mb-50">
                                         <div className="img-holder"><img src={img} alt="" /></div>
                                         <div className="post">
