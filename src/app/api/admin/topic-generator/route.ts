@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 
+export const maxDuration = 60
+
 export async function POST(request: Request) {
     const session = await auth()
     if (!session || (session.user as any)?.role !== 'ADMIN') {

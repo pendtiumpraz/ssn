@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { auth } from '@/lib/auth'
 
+// Vercel: max 60s for Pro, 10s for Hobby
+export const maxDuration = 60
+
 export async function POST(request: Request) {
     const session = await auth()
     if (!session || (session.user as any)?.role !== 'ADMIN') {
