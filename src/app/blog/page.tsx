@@ -27,7 +27,7 @@ export default async function BlogPage() {
                     author: { select: { name: true } },
                 },
                 orderBy: { createdAt: 'desc' },
-                take: 12,
+                take: 50,
             }),
             prisma.category.findMany({
                 where: { articles: { some: { status: 'PUBLISHED' } } },
