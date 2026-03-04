@@ -83,7 +83,7 @@ export default async function BlogDetailPage({ params }: Props) {
                             )}
 
                             {/* Article Content */}
-                            <div className="pt-50" dangerouslySetInnerHTML={{ __html: article.content }} />
+                            <div className="blog-article-content pt-50" dangerouslySetInnerHTML={{ __html: article.content }} />
                         </div>
                     </div>
 
