@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server'
 
-export const runtime = 'edge'
+// Hobby plan: maxDuration up to 60s. Auth handled by middleware.
+export const maxDuration = 60
 
-// Auth is handled by middleware - no need to import auth/prisma here
 export async function POST(request: Request) {
     try {
         const body = await request.json()

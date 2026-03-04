@@ -1,15 +1,15 @@
 import { NextResponse } from 'next/server'
 
-export const runtime = 'edge'
+// Hobby plan: maxDuration up to 60s. Auth handled by middleware.
+export const maxDuration = 60
 
-// Auth is handled by middleware - no need to import auth/prisma here
 export async function POST(request: Request) {
     try {
         const body = await request.json()
         const { niche = 'apps dan AI', count = 10, existingTitles = [] } = body
 
         const existingList = existingTitles.length > 0
-            ? `\n\nJANGAN buat topik serupa dengan:\n${existingTitles.slice(0, 20).map((t: string, i: number) => `${i + 1}. ${t}`).join('\n')}`
+            ? `\nJANGAN buat topik serupa dengan:\n${existingTitles.slice(0, 20).map((t: string, i: number) => `${i + 1}. ${t}`).join('\n')}`
             : ''
 
         const prompt = `Generate ${count} ide topik artikel blog untuk software house seputar "${niche}".
