@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
+import { prisma } from '@/lib/prisma'
 
-export const maxDuration = 60
+export const maxDuration = 10
 
 export async function POST(request: Request) {
     const session = await auth()
@@ -13,27 +14,27 @@ export async function POST(request: Request) {
         const body = await request.json()
         const { niche = 'apps dan AI', count = 10 } = body
 
-        const prompt = `Kamu adalah content strategist untuk blog perusahaan software house bernama Sainskerta Nusantara.
-Generate ${count} ide topik artikel blog yang menarik dan SEO-friendly seputar "${niche}".
+        // Fetch existing article titles to avoid duplicates
+        const existingArticles = await prisma.article.findMany({
+            select: { title: true },
+            orderBy: { createdAt: 'desc' },
+            take: 50,
+        })
+        const existingTitles = existingArticles.map(a => a.title)
+
+        const existingList = existingTitles.length > 0
+            ? `\n\nARTIKEL YANG SUDAH ADA (JANGAN buat topik serupa/mirip):\n${existingTitles.map((t, i) => `${i + 1}. ${t}`).join('\n')}`
+            : ''
+
+        const prompt = `Generate ${count} ide topik artikel blog untuk Sainskerta Nusantara (software house) seputar "${niche}".
 
 Setiap topik harus:
-- Relevan dengan industri teknologi, mobile apps, AI, dan bisnis digital
-- Memiliki judul yang clickbait tapi informatif
-- Cocok untuk target audience pengusaha dan developer di Indonesia
+- Unik, menarik, SEO-friendly
+- Relevan dengan teknologi, apps, AI, bisnis digital
+- Target audience: pengusaha dan developer Indonesia${existingList}
 
-Format response HARUS dalam JSON array seperti ini:
-[
-  {
-    "title": "Judul Artikel yang Menarik",
-    "description": "Deskripsi singkat tentang apa yang akan dibahas",
-    "category": "Teknologi|Bisnis|Tutorial|Tips & Trik|Berita",
-    "tags": ["tag1", "tag2"],
-    "difficulty": "beginner|intermediate|advanced",
-    "estimatedReadTime": "5 min"
-  }
-]
-
-Kembalikan HANYA JSON array-nya saja.`
+Response JSON array saja:
+[{"title":"...","description":"...","category":"Teknologi|Bisnis|Tutorial|Tips & Trik|Berita","tags":["tag1"],"difficulty":"beginner|intermediate|advanced","estimatedReadTime":"5 min"}]`
 
         const response = await fetch('https://api.deepseek.com/chat/completions', {
             method: 'POST',
@@ -44,11 +45,11 @@ Kembalikan HANYA JSON array-nya saja.`
             body: JSON.stringify({
                 model: 'deepseek-chat',
                 messages: [
-                    { role: 'system', content: 'Kamu adalah content strategist profesional. Selalu kembalikan JSON yang valid.' },
+                    { role: 'system', content: 'Content strategist profesional. Kembalikan JSON array valid saja.' },
                     { role: 'user', content: prompt },
                 ],
                 temperature: 0.9,
-                max_tokens: 4000,
+                max_tokens: 3000,
             }),
         })
 

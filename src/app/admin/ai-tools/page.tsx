@@ -140,7 +140,7 @@ export default function AIToolsPage() {
                 const aiRes = await fetch('/api/admin/ai-writer', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ topic: topic.title, length: 'medium' }),
+                    body: JSON.stringify({ topic: topic.title, length: 'short' }),
                 })
 
                 if (!aiRes.ok) {
