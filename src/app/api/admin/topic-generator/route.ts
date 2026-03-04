@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 
-export const maxDuration = 10
+export const runtime = 'edge'
 
 // Auth is handled by middleware - no need to import auth/prisma here
 export async function POST(request: Request) {
