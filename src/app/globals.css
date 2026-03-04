@@ -1,0 +1,5 @@
+/* Reset Next.js defaults */
+* {
+  margin: 0;
+  padding: 0;
+}
