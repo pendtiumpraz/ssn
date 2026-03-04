@@ -1,14 +1,9 @@
 import { NextResponse } from 'next/server'
-import { auth } from '@/lib/auth'
 
 export const maxDuration = 10
 
+// Auth is handled by middleware - no need to import auth/prisma here
 export async function POST(request: Request) {
-    const session = await auth()
-    if (!session || (session.user as any)?.role !== 'ADMIN') {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
     try {
         const body = await request.json()
         const { topic, language = 'id', length = 'medium' } = body
@@ -24,14 +19,10 @@ export async function POST(request: Request) {
         }
         const { guide, tokens } = lengthMap[length] || lengthMap.medium
 
-        const prompt = `Tulis artikel blog untuk Sainskerta Nusantara (software house) tentang: "${topic}"
+        const prompt = `Tulis artikel blog untuk Sainskerta Nusantara tentang: "${topic}"
+${guide}, ${language === 'id' ? 'Bahasa Indonesia' : 'English'}, format HTML (h2,p,ul).
 
-Aturan:
-- ${guide}, Bahasa ${language === 'id' ? 'Indonesia' : 'English'}
-- Format HTML (h2, p, ul/li)
-- Tone profesional
-
-Response JSON saja:
+Response JSON:
 {"title":"...","excerpt":"...","content":"<h2>...</h2><p>...</p>","tags":["tag1","tag2"]}`
 
         const response = await fetch('https://api.deepseek.com/chat/completions', {
@@ -43,7 +34,7 @@ Response JSON saja:
             body: JSON.stringify({
                 model: 'deepseek-chat',
                 messages: [
-                    { role: 'system', content: 'Penulis blog profesional. Kembalikan JSON valid saja.' },
+                    { role: 'system', content: 'Penulis blog. Kembalikan JSON valid saja.' },
                     { role: 'user', content: prompt },
                 ],
                 temperature: 0.8,
@@ -61,11 +52,7 @@ Response JSON saja:
         let article
         try {
             const jsonMatch = aiResponse.match(/\{[\s\S]*\}/)
-            if (jsonMatch) {
-                article = JSON.parse(jsonMatch[0])
-            } else {
-                article = JSON.parse(aiResponse)
-            }
+            article = jsonMatch ? JSON.parse(jsonMatch[0]) : JSON.parse(aiResponse)
         } catch {
             return NextResponse.json({ error: 'Failed to parse AI response', raw: aiResponse }, { status: 422 })
         }
