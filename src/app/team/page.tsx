@@ -1,31 +1,22 @@
 import type { Metadata } from 'next'
+import { prisma } from '@/lib/prisma'
 
 export const metadata: Metadata = {
     title: 'Team - Sainskerta Nusantara',
     description: 'Tim Sainskerta Nusantara - Expert team of passionate creators.',
 }
 
-const teamMembers = [
-    { name: 'M. Rizal Karunia Haris', role: 'Chief Executive Officer', img: '/images/team/rizal.png', linkedin: '#' },
-    { name: 'Achmad Faik Faruqi', role: 'Chief Technology Officer', img: '/images/team/faik.jpeg', linkedin: '#' },
-    { name: 'Ifa Alif', role: 'Chief Information Officer', img: '/images/team/alif.jpg', linkedin: '#' },
-    { name: 'Galih Prasetyo', role: 'Chief AI Engineer', img: '/images/team/galih2.jpg', linkedin: 'https://linkedin.com/in/pendtiumpraz' },
-    { name: "Hilwin Nisa'", role: 'Chief Operating Officer', img: '/images/team/hilwin.jpg', linkedin: '#' },
-    { name: 'Mery Yulikuntari', role: 'Data Analyst', img: '/images/team/mery.jpg', linkedin: '#' },
-    { name: 'Nyuhani Prasasti', role: 'Human Resource & Development', img: '/images/team/hani.jpg', linkedin: '#' },
-    { name: 'Irvan Ariyanto', role: 'Data Scientist', img: '/images/team/irvan.jpeg', linkedin: '#' },
-    { name: 'Dany Asyari', role: 'UI/UX Designer', img: '/images/team/dani.jpeg', linkedin: '#' },
-    { name: 'Alfan Ghinan Rusydi', role: 'Full Stack Developer', img: '/images/team/alfan.jpg', linkedin: '#' },
-    { name: 'M. Dhofir Alibi', role: 'Senior Android Programmer', img: '/images/team/alibi.jpeg', linkedin: '#' },
-    { name: 'Ahmad Dzul Fikri', role: 'Senior Backend Engineer', img: '/images/team/fikri.JPG', linkedin: '#' },
-    { name: 'Abdan Syakuro', role: 'Senior Web Programmer', img: '/images/team/abdan.jpeg', linkedin: '#' },
-    { name: 'Alif Nur I', role: 'Senior Full Stack Programmer', img: '/images/team/alif-nur.jpeg', linkedin: '#' },
-    { name: 'Naufaldi Rafif S', role: 'Senior Frontend Programmer', img: '/images/team/naufal.JPG', linkedin: '#' },
-    { name: 'Eldo Alvianto', role: 'Videographer & Editing', img: '/images/team/eldo.jpg', linkedin: '#' },
-    { name: 'Vetuwa', role: 'Videographer & Editing', img: '/images/team/vetuwa.jpg', linkedin: '#' },
-]
+export default async function TeamPage() {
+    let teamMembers: any[] = []
+    try {
+        teamMembers = await prisma.teamMember.findMany({
+            where: { isActive: true },
+            orderBy: { order: 'asc' },
+        })
+    } catch {
+        // fallback if DB unavailable
+    }
 
-export default function TeamPage() {
     return (
         <>
             {/* Text Inner Banner */}
@@ -48,11 +39,11 @@ export default function TeamPage() {
             <div className="team-standard our-team pb-200 md-pb-80">
                 <div className="container">
                     <div className="row">
-                        {teamMembers.map((member, index) => (
-                            <div className="col-lg-4 col-md-6" key={index}>
+                        {teamMembers.map((member) => (
+                            <div className="col-lg-4 col-md-6" key={member.id}>
                                 <div className="single-team-member">
                                     <div className="wrapper pos-r">
-                                        <div className="img-box"><img src={member.img} alt={member.name} /></div>
+                                        <div className="img-box"><img src={member.image} alt={member.name} /></div>
                                         <div className="info-meta">
                                             <h6 className="name">{member.name}</h6>
                                             <span>{member.role}</span>
@@ -60,9 +51,26 @@ export default function TeamPage() {
                                     </div>
                                     <div className="hover-content">
                                         <ul>
-                                            <li><a href="#"><i className="fa fa-facebook" aria-hidden="true"></i></a></li>
-                                            <li><a href="#"><i className="fa fa-twitter" aria-hidden="true"></i></a></li>
-                                            <li><a href={member.linkedin}><i className="fa fa-linkedin" aria-hidden="true"></i></a></li>
+                                            {member.facebook && member.facebook !== '#' && (
+                                                <li><a href={member.facebook} target="_blank" rel="noopener noreferrer"><i className="fa fa-facebook" aria-hidden="true"></i></a></li>
+                                            )}
+                                            {member.twitter && member.twitter !== '#' && (
+                                                <li><a href={member.twitter} target="_blank" rel="noopener noreferrer"><i className="fa fa-twitter" aria-hidden="true"></i></a></li>
+                                            )}
+                                            {member.linkedin && member.linkedin !== '#' && (
+                                                <li><a href={member.linkedin} target="_blank" rel="noopener noreferrer"><i className="fa fa-linkedin" aria-hidden="true"></i></a></li>
+                                            )}
+                                            {member.instagram && member.instagram !== '#' && (
+                                                <li><a href={member.instagram} target="_blank" rel="noopener noreferrer"><i className="fa fa-instagram" aria-hidden="true"></i></a></li>
+                                            )}
+                                            {/* Fallback if no social links */}
+                                            {(!member.facebook || member.facebook === '#') && (!member.twitter || member.twitter === '#') && (!member.linkedin || member.linkedin === '#') && (!member.instagram || member.instagram === '#') && (
+                                                <>
+                                                    <li><a href="#"><i className="fa fa-facebook" aria-hidden="true"></i></a></li>
+                                                    <li><a href="#"><i className="fa fa-twitter" aria-hidden="true"></i></a></li>
+                                                    <li><a href="#"><i className="fa fa-linkedin" aria-hidden="true"></i></a></li>
+                                                </>
+                                            )}
                                         </ul>
                                     </div>
                                 </div>

@@ -80,6 +80,7 @@ model TeamMember {
   linkedin  String   @default("#")
   facebook  String   @default("#")
   twitter   String   @default("#")
+  instagram String   @default("#")
   order     Int      @default(0)
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())

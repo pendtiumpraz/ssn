@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 
 interface TeamMemberType {
     id: string; name: string; role: string; image: string;
-    linkedin: string; facebook: string; twitter: string;
+    linkedin: string; facebook: string; twitter: string; instagram: string;
     order: number; isActive: boolean;
 }
 
@@ -14,7 +14,7 @@ export default function AdminTeamPage() {
     const [editing, setEditing] = useState<TeamMemberType | null>(null)
     const [showForm, setShowForm] = useState(false)
     const [message, setMessage] = useState('')
-    const [form, setForm] = useState({ name: '', role: '', image: '', linkedin: '#', order: 0 })
+    const [form, setForm] = useState({ name: '', role: '', image: '', linkedin: '#', facebook: '#', twitter: '#', instagram: '#', order: 0 })
 
     useEffect(() => { loadMembers() }, [])
 
@@ -28,13 +28,13 @@ export default function AdminTeamPage() {
 
     const openAdd = () => {
         setEditing(null)
-        setForm({ name: '', role: '', image: '', linkedin: '#', order: members.length + 1 })
+        setForm({ name: '', role: '', image: '', linkedin: '#', facebook: '#', twitter: '#', instagram: '#', order: members.length + 1 })
         setShowForm(true)
     }
 
     const openEdit = (m: TeamMemberType) => {
         setEditing(m)
-        setForm({ name: m.name, role: m.role, image: m.image, linkedin: m.linkedin, order: m.order })
+        setForm({ name: m.name, role: m.role, image: m.image, linkedin: m.linkedin, facebook: m.facebook, twitter: m.twitter, instagram: m.instagram, order: m.order })
         setShowForm(true)
     }
 
@@ -89,13 +89,27 @@ export default function AdminTeamPage() {
                         </div>
                         <div className="admin-form-row">
                             <div className="admin-form-group">
-                                <label>LinkedIn URL</label>
-                                <input className="admin-input" value={form.linkedin} onChange={e => setForm({ ...form, linkedin: e.target.value })} />
+                                <label>LinkedIn</label>
+                                <input className="admin-input" value={form.linkedin} onChange={e => setForm({ ...form, linkedin: e.target.value })} placeholder="https://linkedin.com/in/..." />
                             </div>
                             <div className="admin-form-group">
-                                <label>Urutan</label>
-                                <input className="admin-input" type="number" value={form.order} onChange={e => setForm({ ...form, order: Number(e.target.value) })} />
+                                <label>Facebook</label>
+                                <input className="admin-input" value={form.facebook} onChange={e => setForm({ ...form, facebook: e.target.value })} placeholder="https://facebook.com/..." />
                             </div>
+                        </div>
+                        <div className="admin-form-row">
+                            <div className="admin-form-group">
+                                <label>Twitter</label>
+                                <input className="admin-input" value={form.twitter} onChange={e => setForm({ ...form, twitter: e.target.value })} placeholder="https://twitter.com/..." />
+                            </div>
+                            <div className="admin-form-group">
+                                <label>Instagram</label>
+                                <input className="admin-input" value={form.instagram} onChange={e => setForm({ ...form, instagram: e.target.value })} placeholder="https://instagram.com/..." />
+                            </div>
+                        </div>
+                        <div className="admin-form-group">
+                            <label>Urutan</label>
+                            <input className="admin-input" type="number" value={form.order} onChange={e => setForm({ ...form, order: Number(e.target.value) })} style={{ maxWidth: '120px' }} />
                         </div>
                         <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
                             <button className="admin-action-btn" onClick={handleSave}>💾 Simpan</button>
