@@ -121,31 +121,65 @@ export default function AIToolsPage() {
         }
     }
 
-    // Bulk Create
+    // Bulk Create - processes 1 article at a time from frontend
     const handleBulkCreate = async () => {
         const selected = topics.filter((_, i) => selectedTopics.has(i))
         if (selected.length === 0) return
         setBulkLoading(true)
         setBulkResult(null)
-        setBulkProgress(`Memproses ${selected.length} artikel...`)
-        try {
-            const res = await fetch('/api/admin/bulk-create', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ topics: selected, autoPublish: bulkAutoPublish }),
-            })
-            if (res.ok) {
-                const data = await res.json()
-                setBulkResult(data)
-                setBulkProgress('')
-            } else {
-                setBulkProgress('Gagal membuat artikel')
+
+        const results: any[] = []
+        const errors: any[] = []
+
+        for (let i = 0; i < selected.length; i++) {
+            const topic = selected[i]
+            setBulkProgress(`Menulis artikel ${i + 1}/${selected.length}: "${topic.title}"...`)
+
+            try {
+                // Step 1: Generate article content via AI Writer
+                const aiRes = await fetch('/api/admin/ai-writer', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ topic: topic.title, length: 'medium' }),
+                })
+
+                if (!aiRes.ok) {
+                    errors.push({ topic: topic.title, error: 'AI generation failed' })
+                    continue
+                }
+
+                const articleData = await aiRes.json()
+                setBulkProgress(`Menyimpan artikel ${i + 1}/${selected.length}: "${articleData.title}"...`)
+
+                // Step 2: Save article to database
+                const slug = (articleData.title || topic.title).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') + '-' + Date.now()
+                const saveRes = await fetch('/api/admin/articles', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        title: articleData.title || topic.title,
+                        slug,
+                        excerpt: articleData.excerpt || '',
+                        content: articleData.content || '',
+                        tags: articleData.tags || topic.tags || [],
+                        status: bulkAutoPublish ? 'PUBLISHED' : 'DRAFT',
+                    }),
+                })
+
+                if (saveRes.ok) {
+                    const saved = await saveRes.json()
+                    results.push({ id: saved.id, title: saved.title, slug: saved.slug, status: saved.status })
+                } else {
+                    errors.push({ topic: topic.title, error: 'Failed to save article' })
+                }
+            } catch (err: any) {
+                errors.push({ topic: topic.title, error: err.message || 'Unknown error' })
             }
-        } catch {
-            setBulkProgress('Error')
-        } finally {
-            setBulkLoading(false)
         }
+
+        setBulkResult({ created: results.length, failed: errors.length, articles: results, errors })
+        setBulkProgress('')
+        setBulkLoading(false)
     }
 
     return (
